@@ -2,17 +2,18 @@ syntax on
 syntax enable
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin("~/.vim/vundle")
+Plugin 'python-rope/ropevim'
+Plugin 'mhinz/vim-startify'
 Plugin 'gmarik/Vundle.vim'
 Plugin 'janko-m/vim-test'
+Plugin 'tell-k/vim-autopep8'
 Bundle 'gmarik/vundle'
 Bundle 'tpope/vim-fugitive'
 Bundle 'frankier/neovim-colors-solarized-truecolor-only'
 Bundle 'Valloric/YouCompleteMe'
-"Bundle 'davidhalter/jedi-vim'
 Bundle 'klen/python-mode'
 Bundle 'scrooloose/nerdtree'
 Plugin 'Xuyuanp/nerdtree-git-plugin'
-"Plugin 'scrooloose/syntastic'
 Plugin 'bling/vim-airline'
 Plugin 'airblade/vim-gitgutter.git'
 Plugin 'kien/ctrlp.vim'
@@ -22,7 +23,6 @@ Plugin 'tpope/vim-surround'
 Plugin 'tpope/vim-repeat'
 Plugin 'rking/ag.vim'
 Plugin 'benekastah/neomake'
-Plugin 'tell-k/vim-autopep8'
 Plugin 'rbgrouleff/bclose.vim'
 Plugin 'tpope/vim-vividchalk'
 Plugin 'morhetz/gruvbox'
@@ -31,6 +31,7 @@ Plugin 'majutsushi/tagbar'
 call vundle#end()
 "neovim settings
 set clipboard+=unnamedplus
+set termguicolors
 
 
 filetype plugin indent on
@@ -87,7 +88,6 @@ let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
 
 let g:ctrlp_clear_cache_on_exit = 1
 "vim-test settings
-nmap <silent> <leader>t :TestNearest<CR>
 nmap <silent> <leader>a :TestSuite<CR>
 nmap <silent> <leader>l :TestLast<CR>
 nmap <silent> <leader>g :TestVisit<CR>
@@ -95,9 +95,24 @@ nmap <silent> <leader>f :Ag<CR>
 nmap <silent> zz :Bclose<CR>
 nmap <silent> <leader>d :YcmCompleter GoTo<CR>
 
+nmap <silent> <leader>t :call KillTestAndRunAnew()<CR>
+function! KillTestAndRunAnew()
+    :T exec('try: quit()\nexcept: quit()')
+    TestNearest
+endfunc
+
+function! CleanDBTransform(cmd) abort
+  return 'CLEAN_OSIRIUM_DATABASE=TRUE '.a:cmd
+endfunction
+
+let g:test#custom_transformations = {'clean_db': function('CleanDBTransform')}
+let g:test#transformation = 'clean_db'
+
 let test#python#runner = 'nose'
-let test#python#nose#options = '--ipdb --ipdb-failures -s'
+let test#python#nose#options = '--ipdb --ipdb-failures -s --nologcapture'
+let test#filename_modifier = ':~'
 let test#strategy = "neoterm"
+
 nnoremap <silent> ,th :call neoterm#close()<CR>
 " clear terminal
 nnoremap <silent> ,tl :call neoterm#clear()<CR>
@@ -107,7 +122,8 @@ nnoremap <silent> H :T <C-R>"<CR>
 
 nnoremap <silent> qq :call CloseWindowsToCode()<CR>
 nnoremap <silent> <C-B> :CtrlPBuffer<CR>
-
+nnoremap <silent> 't :call GoToNeoTerm()<CR>
+tnoremap <silent> 't <C-\><C-n> :call GoToNeoTerm()<CR>
 function! CloseWindowsToCode()
     Tclose
     NERDTreeClose
@@ -115,6 +131,19 @@ function! CloseWindowsToCode()
     cclose
     lclose
     helpclose
+endfunc
+
+let g:not_in_neoterm = 1
+function! GoToNeoTerm()
+  echo g:not_in_neoterm
+  if(g:not_in_neoterm == 1)
+    :100 wincmd j
+    :startinsert
+    let g:not_in_neoterm = 0
+  else
+    :wincmd p
+    let g:not_in_neoterm = 1
+  endif
 endfunc
 
 "#############line numbering##############
@@ -172,20 +201,24 @@ autocmd BufWritePre * :%s/\s\+$//e
 " ]]            Jump on next class or function (normal, visual, operator modes)
 " [M            Jump on previous class or method (normal, visual, operator modes)
 " ]M            Jump on next class or method (normal, visual, operator modes)
-let g:pymode_rope = 1
+let g:pymode_rope = 0
 let g:pymode_rope_completion = 0
 let g:pymode_rope_autoimport = 0
 let g:pymode_rope_lookup_project = 0
 let g:pymode_rope_regenerate_on_write = 0
 
 " Documentation
-let g:pymode_doc = 1
+let g:pymode_doc = 0
 let g:pymode_doc_key = 'K'
 
 let g:pymode_breakpoint_cmd = 'import ipdb; ipdb.set_trace()'
 "Linting:
 
-let g:neomake_python_enabled_makers = ['pyflakes']
+let g:autopep8_ignore="E501,E121,E711,E712,E123,E126,E226,E24,E704"
+let g:neomake_python_enabled_makers = ['flake8']
+let g:neomake_python_flake8_maker = {
+    \'args': ['--ignore=E501,E121,E711,E712,E123,E126,E226,E24,E704'],
+    \}
 autocmd! BufWritePost * Neomake
 autocmd! InsertLeave,TextChanged * :call LeaveInsertSaveAndCheck()
 function! LeaveInsertSaveAndCheck()
@@ -195,10 +228,8 @@ function! LeaveInsertSaveAndCheck()
 endfunction
 
 let g:pymode_lint = 0
-let g:pymode_lint_checker = "pyflakes,pep8"
 let g:pymode_lint_write = 0
 
-let g:pymode_lint_ignore = "E501"
 " Support virtualenv
 let g:pymode_virtualenv = 1
 
@@ -207,6 +238,8 @@ let g:pymode_lint_cwindow = 0
 let g:pymode_breakpoint = 1
 let g:pymode_breakpoint_bind = '<leader>b'
 let g:pymode_breakpoint_bind = '<leader>b'
+nnoremap <silent> <leader>c :g/XXX BREAKPOINT/d<CR>
+let g:pymode_rope_extract_method_bind = '<leader>e'
 
 " syntax highlighting
 let g:pymode_syntax = 1
@@ -227,7 +260,6 @@ set linebreak
 set wrap
 
 autocmd BufNewFile,BufRead *tac set syntax=python
-autocmd BufWritePost *py call jobstart('PymodeRopeRegenerate')
 "Auto reload vimrc
 augroup reload_vimrc " {
         autocmd!
