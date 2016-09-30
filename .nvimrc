@@ -3,10 +3,10 @@ syntax enable
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin("~/.vim/vundle")
 Plugin 'python-rope/ropevim'
-Plugin 'mhinz/vim-startify'
 Plugin 'gmarik/Vundle.vim'
 Plugin 'janko-m/vim-test'
 Plugin 'tell-k/vim-autopep8'
+Plugin 'fsharp/vim-fsharp'
 Bundle 'gmarik/vundle'
 Bundle 'tpope/vim-fugitive'
 Bundle 'frankier/neovim-colors-solarized-truecolor-only'
@@ -90,7 +90,6 @@ let g:ctrlp_clear_cache_on_exit = 1
 "vim-test settings
 nmap <silent> <leader>a :TestSuite<CR>
 nmap <silent> <leader>l :TestLast<CR>
-nmap <silent> <leader>g :TestVisit<CR>
 nmap <silent> <leader>f :Ag<CR>
 nmap <silent> zz :Bclose<CR>
 nmap <silent> <leader>d :YcmCompleter GoTo<CR>
@@ -101,8 +100,13 @@ function! KillTestAndRunAnew()
     TestNearest
 endfunc
 
+
+"git settings
+
+nmap <silent> <leader>gc :Gcommit %<CR>
+
 function! CleanDBTransform(cmd) abort
-  return 'CLEAN_OSIRIUM_DATABASE=TRUE '.a:cmd
+  return 'CLEAN_OSIRIUM_DATABASE=TRUE OSIRIUM_DATABASE_URI=postgresql://:5433/osirium '.a:cmd
 endfunction
 
 let g:test#custom_transformations = {'clean_db': function('CleanDBTransform')}
@@ -215,6 +219,8 @@ let g:pymode_breakpoint_cmd = 'import ipdb; ipdb.set_trace()'
 "Linting:
 
 let g:autopep8_ignore="E501,E121,E711,E712,E123,E126,E226,E24,E704"
+let g:autopep8_disable_show_diff=1
+
 let g:neomake_python_enabled_makers = ['flake8']
 let g:neomake_python_flake8_maker = {
     \'args': ['--ignore=E501,E121,E711,E712,E123,E126,E226,E24,E704'],
@@ -246,7 +252,6 @@ let g:pymode_syntax = 1
 let g:pymode_syntax_all = 1
 let g:pymode_syntax_indent_errors = g:pymode_syntax_all
 let g:pymode_syntax_space_errors = g:pymode_syntax_all
-
 " Don't autofold code
 let g:pymode_folding = 1
 
