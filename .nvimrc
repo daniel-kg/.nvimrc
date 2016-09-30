@@ -106,6 +106,8 @@ endfunc
 nmap <silent> <leader>gc :Gcommit %<CR>
 nmap <silent> <leader>gs :Gstatus<CR>
 nmap <silent> <leader>gd :Gdiff<CR>
+nmap <silent> <leader>gb :Gbrowse<CR>
+nmap <silent> <leader>gp :Gpush<CR>
 
 function! CleanDBTransform(cmd) abort
   return 'CLEAN_OSIRIUM_DATABASE=TRUE OSIRIUM_DATABASE_URI=postgresql://:5433/osirium '.a:cmd
