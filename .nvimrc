@@ -91,7 +91,7 @@ let g:ctrlp_clear_cache_on_exit = 1
 nmap <silent> <leader>a :TestSuite<CR>
 nmap <silent> <leader>l :TestLast<CR>
 nmap <silent> <leader>f :Ag<CR>
-nmap <silent> zz :Bclose<CR>
+nmap <silent> zz :q<CR>
 nmap <silent> <leader>d :YcmCompleter GoTo<CR>
 
 nmap <silent> <leader>t :call KillTestAndRunAnew()<CR>
@@ -104,6 +104,8 @@ endfunc
 "git settings
 
 nmap <silent> <leader>gc :Gcommit %<CR>
+nmap <silent> <leader>gs :Gstatus<CR>
+nmap <silent> <leader>gd :Gdiff<CR>
 
 function! CleanDBTransform(cmd) abort
   return 'CLEAN_OSIRIUM_DATABASE=TRUE OSIRIUM_DATABASE_URI=postgresql://:5433/osirium '.a:cmd
