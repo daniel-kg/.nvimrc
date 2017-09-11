@@ -2,6 +2,7 @@ syntax on
 syntax enable
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin("~/.vim/vundle")
+Plugin 'mindriot101/vim-yapf'
 Plugin 'python-rope/ropevim'
 Plugin 'gmarik/Vundle.vim'
 Plugin 'janko-m/vim-test'
@@ -9,19 +10,16 @@ Plugin 'tell-k/vim-autopep8'
 Plugin 'fsharp/vim-fsharp'
 Bundle 'gmarik/vundle'
 Bundle 'tpope/vim-fugitive'
-Bundle 'frankier/neovim-colors-solarized-truecolor-only'
 Bundle 'Valloric/YouCompleteMe'
 Bundle 'klen/python-mode'
 Bundle 'scrooloose/nerdtree'
 Plugin 'Xuyuanp/nerdtree-git-plugin'
-Plugin 'bling/vim-airline'
 Plugin 'airblade/vim-gitgutter.git'
-Plugin 'kien/ctrlp.vim'
-Plugin 'FelikZ/ctrlp-py-matcher'
+Plugin 'junegunn/fzf'
+Plugin 'junegunn/fzf.vim'
 Plugin 'kassio/neoterm'
 Plugin 'tpope/vim-surround'
 Plugin 'tpope/vim-repeat'
-Plugin 'rking/ag.vim'
 Plugin 'benekastah/neomake'
 Plugin 'rbgrouleff/bclose.vim'
 Plugin 'tpope/vim-vividchalk'
@@ -33,20 +31,20 @@ call vundle#end()
 set clipboard+=unnamedplus
 set termguicolors
 
+"Yapf settings
+"
+:nnoremap <LocalLeader>y :call Yapf()<cr>
 
 filetype plugin indent on
 set backup
 set backupdir=~/.backups
 set foldlevelstart=20
 
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#fnamemod = ':t'
-let g:airline_powerline_fonts = 1
 let g:gruvbox_contrast_dark = 'hard'
 let g:gruvbox_italicize_strings = 1
 
 set laststatus=2
-set noshowmode
+set showmode
 " Neovim-qt Guifont command, to change the font
 "#######Highlight excess line length
 augroup vimrc_autocmds
@@ -76,17 +74,6 @@ nmap <F3> :TagbarToggle<CR>
 
 let g:tagbar_autoclose = 1
 let g:tagbar_autofocus = 1
-"ctrlp matching
-
-let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
-      \ --ignore .git
-      \ --ignore .svn
-      \ --ignore .hg
-      \ --ignore .DS_Store
-      \ --ignore "**/*.pyc"
-      \ -g ""'
-
-let g:ctrlp_clear_cache_on_exit = 1
 "vim-test settings
 nmap <silent> <leader>a :TestSuite<CR>
 nmap <silent> <leader>l :TestLast<CR>
@@ -104,6 +91,7 @@ endfunc
 "git settings
 
 nmap <silent> <leader>gc :Gcommit %<CR>
+nmap <silent> <leader>ga :!git add %<CR>
 nmap <silent> <leader>gs :Gstatus<CR>
 nmap <silent> <leader>gd :Gdiff<CR>
 nmap <silent> <leader>gb :Gbrowse<CR>
@@ -116,8 +104,8 @@ endfunction
 let g:test#custom_transformations = {'clean_db': function('CleanDBTransform')}
 let g:test#transformation = 'clean_db'
 
-let test#python#runner = 'nose'
-let test#python#nose#options = '--ipdb --ipdb-failures -s --nologcapture'
+let test#python#runner = 'pytest'
+let test#python#pytest#options = '--pdb -s -x'
 let test#filename_modifier = ':~'
 let test#strategy = "neoterm"
 
@@ -129,7 +117,13 @@ nnoremap <silent> ,tc :call neoterm#kill()<CR>
 nnoremap <silent> H :T <C-R>"<CR>
 
 nnoremap <silent> qq :call CloseWindowsToCode()<CR>
-nnoremap <silent> <C-B> :CtrlPBuffer<CR>
+nnoremap <silent> <C-p> :GFiles<CR>
+nnoremap <silent> <C-a> :Files<CR>
+nnoremap <silent> <C-b> :Buffers<CR>
+nnoremap <silent> <C-t> :Tags<CR>
+nnoremap <silent> <C-g> :Commits<CR>
+nnoremap <silent> <C-l> :BCommits<CR>
+let g:fzf_buffers_jump = 1
 nnoremap <silent> 't :call GoToNeoTerm()<CR>
 tnoremap <silent> 't <C-\><C-n> :call GoToNeoTerm()<CR>
 function! CloseWindowsToCode()
@@ -176,7 +170,6 @@ nnoremap <C-n> :call NumberToggle()<cr>
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 set background=dark
 colorscheme gruvbox
-set guifont=Ubuntu\ Mono\ for\ Powerline\ 12
 "############# WHITESPACE ###########
 set expandtab tabstop=4 shiftwidth=4
 nmap <F8> o<Esc>k
@@ -219,15 +212,12 @@ let g:pymode_rope_regenerate_on_write = 0
 let g:pymode_doc = 0
 let g:pymode_doc_key = 'K'
 
-let g:pymode_breakpoint_cmd = 'import ipdb; ipdb.set_trace()'
+let g:pymode_breakpoint_cmd = 'import pytest; pytest.set_trace()'
 "Linting:
-
-let g:autopep8_ignore="E501,E121,E711,E712,E123,E126,E226,E24,E704"
-let g:autopep8_disable_show_diff=1
 
 let g:neomake_python_enabled_makers = ['flake8']
 let g:neomake_python_flake8_maker = {
-    \'args': ['--ignore=E501,E121,E711,E712,E123,E126,E226,E24,E704'],
+    \'args': ['--ignore=E711,E712,E731,E402,F841,F401,E501,E126,E226'],
     \}
 autocmd! BufWritePost * Neomake
 autocmd! InsertLeave,TextChanged * :call LeaveInsertSaveAndCheck()
@@ -249,6 +239,10 @@ let g:pymode_breakpoint = 1
 let g:pymode_breakpoint_bind = '<leader>b'
 let g:pymode_breakpoint_bind = '<leader>b'
 nnoremap <silent> <leader>c :g/XXX BREAKPOINT/d<CR>
+
+nnoremap <C-S-e> :T rtd %<CR>
+
+
 let g:pymode_rope_extract_method_bind = '<leader>e'
 
 " syntax highlighting
@@ -258,6 +252,7 @@ let g:pymode_syntax_indent_errors = g:pymode_syntax_all
 let g:pymode_syntax_space_errors = g:pymode_syntax_all
 " Don't autofold code
 let g:pymode_folding = 1
+let g:ycm_python_binary_path = 'python'
 
 "rope rename
 let g:pymode_rope_rename_bind = '<leader>m'
@@ -275,17 +270,6 @@ augroup reload_vimrc " {
             autocmd BufWritePost $MYVIMRC source $MYVIMRC
         augroup END " }
 
-        " clock for airline
-
-function! AirlineInit()
-  let g:airline_section_y = airline#section#create(['ffenc', '-[%{strftime("%H:%M")}]'])
-endfunction
-autocmd VimEnter * call AirlineInit()
-
 let NERDTreeIgnore = ['\.pyc$']
 
-let g:airline#extensions#tagbar#enabled = 1
-let g:airline#extensions#tagbar#flags = 'f'
-let g:airline#extensions#tabline#enabled = 0
-let g:airline_section_y = ''
 set showtabline =0
