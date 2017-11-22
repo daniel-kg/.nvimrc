@@ -27,12 +27,25 @@ Plugin 'morhetz/gruvbox'
 Plugin 'lzh9102/vim-distinguished'
 Plugin 'majutsushi/tagbar'
 Plugin 'w0rp/ale'
+Plugin 'rking/ag.vim'
+Plugin 'easymotion/vim-easymotion'
+Plugin 'tpope/vim-rhubarb'
+Plugin 'vim-scripts/groovy.vim'
 call vundle#end()
 "neovim settings
 set clipboard+=unnamedplus
 set termguicolors
 call jobstart('ctags -R .')
 
+" Jump to anywhere you want with minimal keystrokes, with just one key binding.
+" `s{char}{label}`
+nmap  <space> <Plug>(easymotion-overwin-f2)
+" Turn on case insensitive feature
+let g:EasyMotion_smartcase = 1
+
+" JK motions: Line motions
+map <Leader>j <Plug>(easymotion-j)
+map <Leader>k <Plug>(easymotion-k)
 "Yapf settings
 "
 filetype plugin indent on
