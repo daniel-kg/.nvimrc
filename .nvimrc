@@ -170,6 +170,7 @@ let g:test#python#pytest#options = '--pdb -s -x'
 let g:test#filename_modifier = ':~'
 let g:test#strategy = 'neoterm'
 let g:neoterm_size = 20
+let g:neoterm_default_mod = 'belowright'
 
 nnoremap <silent> ,th :call neoterm#close()<CR>
 " clear terminal
