@@ -2,10 +2,12 @@ syntax on
 syntax enable
 
 call plug#begin('~/.local/share/nvim/plugged')
+Plug '907th/vim-auto-save'
+Plug 'tpope/vim-fugitive'
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'python-rope/ropevim'
 Plug 'janko-m/vim-test'
-Plug 'tpope/vim-fugitive'
+Plug 'mhinz/vim-signify'
 Plug 'ncm2/ncm2'
 Plug 'w0rp/ale'
 Plug 'ncm2/ncm2-bufword'
@@ -241,12 +243,9 @@ nmap <F9> O<Esc>j
 set mouse=a
 autocmd BufWritePre * :%s/\s\+$//e
 
-autocmd! InsertLeave,TextChanged * :call LeaveInsertSaveAndCheck()
 
-function! LeaveInsertSaveAndCheck()
-    write
-    GitGutter
-endfunction
+let g:auto_save = 1
+let g:auto_save_silent = 1  " do not display the auto-save notification
 
 nnoremap <silent> <leader>c :g/XXX BREAKPOINT/d<CR>
 
